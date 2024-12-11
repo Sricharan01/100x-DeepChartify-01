@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm">
-            © {new Date().getFullYear()} DataViz. All rights reserved.
+            © {new Date().getFullYear()} DeepChartify. All rights reserved.
           </p>
           <button
             onClick={handleFeedbackClick}

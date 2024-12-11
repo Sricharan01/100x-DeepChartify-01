@@ -4,6 +4,8 @@ import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { AnalysisResult } from '../types/analysisTypes';
 import { formatChartData } from '../utils/chart/formatters.ts';
+import { createChartOptions } from '../utils/chart/options.ts';
+import { processChartData } from '../utils/chart/processors.ts';
 
 // Utility function to clean text (remove markdown-like elements)
 const cleanText = (text: string): string => {

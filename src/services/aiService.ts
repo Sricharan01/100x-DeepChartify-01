@@ -4,6 +4,8 @@ import { calculateDatasetStatistics } from '../utils/statisticsUtils';
 import { generateAnalysisPrompt } from '../utils/promptUtils';
 import { parseAnalysisResponse } from '../utils/analysisUtils';
 import { formatChartData } from '../utils/chart/formatters.ts';
+import { createChartOptions } from '../utils/chart/options.ts';
+import { processChartData } from '../utils/chart/processors.ts';
 
 const DEFAULT_TOKEN = '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';
 

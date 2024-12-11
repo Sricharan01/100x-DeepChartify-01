@@ -20,6 +20,8 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { createChartData } from '../utils/chartDataUtils';
+import { createChartOptions } from '../utils/chart/options.ts';
+import { processChartData } from '../utils/chart/processors.ts';
 import { formatChartData } from '../utils/chart/formatters.ts';
 
 // Register Chart.js components

@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { AnalysisResult } from '../services/aiService';
 import CopyButton from './CopyButton';
 import { formatChartData } from '../utils/chart/formatters.ts';
+import { createChartOptions } from '../utils/chart/options.ts';
+import { processChartData } from '../utils/chart/processors.ts';
 
 interface AnalysisResultsProps {
   analysis?: AnalysisResult;

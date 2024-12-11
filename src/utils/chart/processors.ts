@@ -1,5 +1,7 @@
 import { ChartDataPoint, ProcessedChartData } from './types';
 import { formatChartData } from '../utils/chart/formatters.ts';
+import { createChartOptions } from '../utils/chart/options.ts';
+import { processChartData } from '../utils/chart/processors.ts';
 
 export const processChartData = (
   data: ChartDataPoint[],

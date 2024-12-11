@@ -1,5 +1,39 @@
 import { ChartConfiguration } from 'chart.js';
 
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  RadialLinearScale,
+  Filler,
+  ChartOptions
+} from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+import { createChartData } from '../utils/chartDataUtils';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  RadialLinearScale,
+  Filler
+);
+
 const getColor = (index: number, alpha = 0.7) => 
   `hsla(${index * 137.5}, 70%, 50%, ${alpha})`;
 

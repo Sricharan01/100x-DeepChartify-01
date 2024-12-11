@@ -1,4 +1,5 @@
 import { ChartData } from 'chart.js';
+import { formatChartData } from '../utils/chart/formatters.ts';
 
 interface DataPoint {
   [key: string]: any;

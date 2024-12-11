@@ -3,6 +3,40 @@ import { Send, Loader, AlertCircle } from 'lucide-react';
 import { analyzeData, AnalysisResult } from '../services/aiService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  RadialLinearScale,
+  Filler,
+  ChartOptions
+} from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+import { createChartData } from '../utils/chartDataUtils';
+import { formatChartData } from '../utils/chart/formatters.ts';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  RadialLinearScale,
+  Filler
+);
+
 interface AIAnalysisProps {
   data: any[];
   onAnalysisComplete: (analysis: AnalysisResult) => void;

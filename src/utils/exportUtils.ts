@@ -3,6 +3,7 @@ import { Document, Packer, Paragraph, TextRun, PageBreak, HeightRule, WidthType 
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { AnalysisResult } from '../types/analysisTypes';
+import { formatChartData } from '../utils/chart/formatters.ts';
 
 // Utility function to clean text (remove markdown-like elements)
 const cleanText = (text: string): string => {

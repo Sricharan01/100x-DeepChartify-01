@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AnalysisResult } from '../services/aiService';
 import CopyButton from './CopyButton';
+import { formatChartData } from '../utils/chart/formatters.ts';
 
 interface AnalysisResultsProps {
   analysis?: AnalysisResult;

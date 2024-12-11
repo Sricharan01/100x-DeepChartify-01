@@ -29,6 +29,9 @@ import {
 import { Chart } from 'react-chartjs-2';
 import { createChartData } from '../utils/chartDataUtils';
 
+import { formatChartData } from '../utils/chart/formatters.ts';
+
+
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,

@@ -1,5 +1,6 @@
 import { ChartOptions as ChartJSOptions } from 'chart.js';
 import { ChartOptions } from './types';
+import { formatChartData } from '../utils/chart/formatters.ts';
 
 export const createChartOptions = (
   type: string,

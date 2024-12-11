@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Send, Loader, HelpCircle } from 'lucide-react';
 import { validatePrompt } from '../utils/analysisUtils';
+import { formatChartData } from '../utils/chart/formatters.ts';
 
 interface CustomPromptProps {
   onSubmit: (prompt: string) => Promise<void>;

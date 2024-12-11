@@ -1,87 +1,91 @@
 import { AnalysisResult } from '../services/aiService';
 
+const MAX_PROMPT_LENGTH = 500;
+const MIN_PROMPT_LENGTH = 3;
+
+export const validatePrompt = (prompt: string): string | null => {
+  if (!prompt || typeof prompt !== 'string') {
+    return 'Please provide a valid prompt';
+  }
+
+  const trimmedPrompt = prompt.trim();
+
+  if (trimmedPrompt.length < MIN_PROMPT_LENGTH) {
+    return 'Prompt is too short. Please be more specific.';
+  }
+
+  if (trimmedPrompt.length > MAX_PROMPT_LENGTH) {
+    return 'Prompt is too long. Please be more concise.';
+  }
+
+  return null;
+};
+
 export const parseAnalysisResponse = (text: string): AnalysisResult['insights'] => {
-  // Split text into sections based on headers
-  const sections = text.split(/\n(?=[A-Z][a-z]+ *:)/);
+  // Remove any system-generated prefixes/suffixes
+  let cleanedText = text
+    .replace(/^(Assistant:|AI:|Analysis:|Here's your analysis:|Here is your analysis:)/i, '')
+    .replace(/^[\s\n]+/, '')
+    .replace(/\n*(\[end\]|\[done\]|\[complete\]|\[finished\])$/i, '')
+    .trim();
+
+  // Extract summary and key findings
+  const sections = cleanedText.split(/\n(?=[A-Z][a-z]+ *:)/);
   
-  // Get unique sections for each category
-  const uniqueSections = {
-    summary: getUniqueSections(sections, ['Summary', 'Overview']),
-    // keyFindings: getUniqueBulletPoints(sections, ['Key Findings', 'Findings', 'Main Discoveries']),
-    recommendations: getUniqueBulletPoints(sections, ['Recommendations', 'Suggestions', 'Next Steps'])
-  };
+  const summary = extractSection(sections, ['Summary', 'Overview', 'Analysis'])
+    || 'No summary available';
+
+  const keyFindings = extractBulletPoints(sections, ['Key Findings', 'Findings', 'Main Points'])
+    .filter(point => point.length > 0)
+    .map(point => point.replace(/^[•\-\*]\s*/, ''));
 
   return {
-    summary: uniqueSections.summary || 'No summary available',
-    keyFindings: uniqueSections.keyFindings,
-    recommendations: uniqueSections.recommendations
+    summary,
+    keyFindings
   };
 };
 
-const getUniqueSections = (sections: string[], headers: string[]): string => {
+const extractSection = (sections: string[], headers: string[]): string => {
   for (const header of headers) {
-    const content = extractSection(sections, header);
-    if (content) return content;
+    const section = sections.find(s => 
+      s.toLowerCase().startsWith(header.toLowerCase())
+    );
+    
+    if (section) {
+      return section
+        .replace(new RegExp(`^${header}:?`, 'i'), '')
+        .trim();
+    }
   }
   return '';
 };
 
-const getUniqueBulletPoints = (sections: string[], headers: string[]): string[] => {
-  const allPoints = new Set<string>();
-  
+const extractBulletPoints = (sections: string[], headers: string[]): string[] => {
   for (const header of headers) {
-    const points = extractBulletPoints(sections, header);
-    points.forEach(point => allPoints.add(point.toLowerCase()));
-  }
-
-  return Array.from(allPoints)
-    .map(point => point.charAt(0).toUpperCase() + point.slice(1));
-};
-
-const extractSection = (sections: string[], header: string): string => {
-  const section = sections.find(s => 
-    s.toLowerCase().includes(header.toLowerCase())
-  );
-  
-  if (!section) return '';
-  
-  return section
-    .replace(new RegExp(`${header}:?`, 'i'), '')
-    .trim()
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line && !line.match(/^[A-Z][a-z]+ *:/))
-    .join('\n');
-};
-
-const extractBulletPoints = (sections: string[], header: string): string[] => {
-  const section = extractSection(sections, header);
-  if (!section) return [];
-  
-  return section
-    .split(/\n-|\n•|\n\d+\./)
-    .map(point => point.trim())
-    .filter(point => point.length > 0)
-    .map(point => point
-      .replace(/^[-•]\s*/, '')
-      .replace(/\s+/g, ' ')
-      .trim()
+    const section = sections.find(s => 
+      s.toLowerCase().includes(header.toLowerCase())
     );
+    
+    if (section) {
+      return section
+        .split(/\n[•\-\*]|\n\d+\./)
+        .slice(1)
+        .map(point => point.trim())
+        .filter(point => point.length > 0);
+    }
+  }
+  return [];
 };
 
 export const validateAnalysisResult = (result: AnalysisResult): boolean => {
-  if (!result.insights) return false;
+  if (!result?.insights) return false;
   
   const { insights } = result;
   
-  // Check if at least summary or key findings are present
-  if (!insights.summary && (!insights.keyFindings || insights.keyFindings.length === 0)) {
-    return false;
-  }
-  
-  // Validate that all arrays are properly formed
-  const arrays = ['keyFindings', 'recommendations'];
-  return arrays.every(key => 
-    !insights[key] || (Array.isArray(insights[key]) && insights[key].every(item => typeof item === 'string'))
+  return (
+    typeof insights.summary === 'string' &&
+    insights.summary.length > 0 &&
+    Array.isArray(insights.keyFindings) &&
+    insights.keyFindings.every(finding => typeof finding === 'string')
   );
 };

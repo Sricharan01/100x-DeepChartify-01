@@ -1,15 +1,28 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { BarChart2, TrendingUp, GitBranch, Lightbulb, ArrowUpDown } from 'lucide-react';
 import { AnalysisResult } from '../services/aiService';
 import CopyButton from './CopyButton';
 
 interface AnalysisResultsProps {
   analysis?: AnalysisResult;
+  loading?: boolean;
 }
 
-const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis }) => {
+const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, loading }) => {
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4 bg-white p-6 rounded-lg shadow-sm">
+        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+        <div className="space-y-3">
+          <div className="h-4 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+        </div>
+      </div>
+    );
+  }
+
   if (!analysis?.insights) {
     return null;
   }
@@ -17,61 +30,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis }) => {
   const { insights } = analysis;
 
   const formatAnalysisText = () => {
-    const sections = [
-      { title: 'Summary', content: insights.summary },
-      { title: 'Key Findings', content: insights.keyFindings },
-      { title: 'Trends', content: insights.trends },
-      { title: 'Recommendations', content: insights.recommendations }
-    ];
-
-    return sections
-      .filter(section => section.content && (!Array.isArray(section.content) || section.content.length > 0))
-      .map(section => {
-        const content = Array.isArray(section.content)
-          ? section.content.map(item => `• ${item}`).join('\n')
-          : section.content;
-        return `${section.title}:\n${content}`;
-      })
-      .join('\n\n');
-  };
-
-  const renderMarkdown = (content: string) => (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      className="prose prose-blue max-w-none"
-      components={{
-        p: ({ node, ...props }) => <p className="text-gray-700" {...props} />,
-        ul: ({ node, ...props }) => <ul className="list-disc list-inside space-y-2" {...props} />,
-        li: ({ node, ...props }) => <li className="text-gray-700" {...props} />,
-        a: ({ node, ...props }) => <a className="text-blue-600 hover:text-blue-800" {...props} />,
-        code: ({ node, ...props }) => <code className="bg-gray-100 rounded px-1" {...props} />
-      }}
-    >
-      {content}
-    </ReactMarkdown>
-  );
-
-  const renderSection = (
-    title: string,
-    content: string | string[],
-    icon: React.ReactNode,
-    iconColor: string
-  ) => {
-    if (!content || (Array.isArray(content) && content.length === 0)) return null;
-
-    return (
-      <div className="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`${iconColor}`}>{icon}</div>
-          <h4 className="text-lg font-semibold">{title}</h4>
-        </div>
-        {renderMarkdown(
-          Array.isArray(content)
-            ? content.map(item => `- ${item}`).join('\n')
-            : content
-        )}
-      </div>
-    );
+    return [
+      `Summary:\n${insights.summary}`,
+      insights.keyFindings?.length > 0 && `Key Findings:\n${insights.keyFindings.map(f => `• ${f}`).join('\n')}`
+    ].filter(Boolean).join('\n\n');
   };
 
   return (
@@ -81,14 +43,30 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis }) => {
         <CopyButton text={formatAnalysisText()} />
       </div>
 
-      {renderSection(
-        'Data Analysis Summary',
-        insights.summary,
-        <BarChart2 className="h-5 w-5" />,
-        'text-blue-500'
-      )}
-      
-      
+      <div className="prose prose-blue max-w-none">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ node, ...props }) => <p className="text-gray-700 mb-4" {...props} />,
+            ul: ({ node, ...props }) => <ul className="list-disc list-inside space-y-2 mb-4" {...props} />,
+            li: ({ node, ...props }) => <li className="text-gray-700" {...props} />,
+            h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2" {...props} />
+          }}
+        >
+          {insights.summary}
+        </ReactMarkdown>
+
+        {insights.keyFindings?.length > 0 && (
+          <>
+            <h3 className="text-lg font-semibold mb-2">Key Findings</h3>
+            <ul className="list-disc list-inside space-y-2">
+              {insights.keyFindings.map((finding, index) => (
+                <li key={index} className="text-gray-700">{finding}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 };

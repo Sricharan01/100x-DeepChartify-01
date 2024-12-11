@@ -11,10 +11,6 @@ export interface AnalysisResult {
   insights: {
     summary: string;
     keyFindings: string[];
-    trends: string[];
-    correlations: string[];
-    recommendations: string[];
-    dependencies?: string[];
   };
 }
 
@@ -25,6 +21,10 @@ export const analyzeData = async (
 ): Promise<AnalysisResult> => {
   if (!datasets || datasets.length === 0) {
     throw new Error('No data provided for analysis');
+  }
+
+  if (!prompt?.trim()) {
+    throw new Error('Please provide a valid prompt');
   }
 
   try {
@@ -38,15 +38,15 @@ export const analyzeData = async (
     const systemPrompt = generateAnalysisPrompt({
       datasets,
       statistics,
-      userPrompt: prompt
+      userPrompt: prompt.trim()
     });
 
-    // Get AI analysis
+    // Get AI analysis with increased token limit
     const response = await hf.textGeneration({
       model: 'meta-llama/Llama-3.2-3B-Instruct',
       inputs: systemPrompt,
       parameters: {
-        max_new_tokens: 1000,
+        max_new_tokens: 2000, // Increased from 1000
         temperature: 0.7,
         top_p: 0.95,
         return_full_text: false,
@@ -56,10 +56,10 @@ export const analyzeData = async (
     });
 
     if (!response.generated_text) {
-      throw new Error('No analysis generated from the model');
+      throw new Error('No analysis generated');
     }
 
-    // Parse the analysis into structured sections
+    // Parse and clean the response
     const insights = parseAnalysisResponse(response.generated_text);
 
     return {

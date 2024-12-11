@@ -37,8 +37,8 @@ interface ChartDisplayProps {
   data: any[];
   columns: string[];
   xAxisLabel?: string;
-  yAxisLabel?: string | string[]; // Allow single or multiple Y-axis labels
-  multiYAxis?: boolean; // New prop to enable multi-column Y-axis
+  yAxisLabel?: string;
+  title?: string;
 }
 
 const ChartDisplay: React.FC<ChartDisplayProps> = ({ 
@@ -47,7 +47,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   columns = [],
   xAxisLabel,
   yAxisLabel,
-  multiYAxis = false // Default to false for backward compatibility
+  title
 }) => {
   if (!data.length || !columns.length) {
     return (
@@ -57,64 +57,12 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     );
   }
 
-  // Handle single or multiple Y-axis columns
-  const yColumns = Array.isArray(yAxisLabel) 
-    ? yAxisLabel 
-    : [yAxisLabel || columns[1]];
-
-  // Create chart data with support for multiple Y-axis columns
-  const chartData = multiYAxis
-    ? createChartData(type, data, columns[0], yColumns)
-    : createChartData(type, data, columns[0], columns[1]);
-
-  const options: ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        position: 'top',
-        display: true
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        callbacks: {
-          label: function(context) {
-            if (type === 'pie') {
-              const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-              const value = context.raw as number;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${context.label}: ${value} (${percentage}%)`;
-            }
-            return `${context.dataset.label}: ${context.formattedValue}`;
-          }
-        }
-      }
-    },
-    scales: type !== 'pie' ? {
-      x: {
-        type: 'category',
-        display: true,
-        title: {
-          display: true,
-          text: xAxisLabel || columns[0]
-        },
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45
-        }
-      },
-      y: {
-        type: 'linear',
-        display: true,
-        title: {
-          display: true,
-          text: multiYAxis ? yColumns.join(' / ') : (yAxisLabel || columns[1])
-        },
-        beginAtZero: true
-      }
-    } : undefined
-  };
+  const chartData = formatChartData(type, data, columns[0], columns[1]);
+  const options = createChartOptions(type, {
+    title,
+    xAxisLabel: xAxisLabel || columns[0],
+    yAxisLabel: yAxisLabel || columns[1]
+  });
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg">

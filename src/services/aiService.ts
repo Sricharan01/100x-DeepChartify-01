@@ -46,7 +46,7 @@ export const analyzeData = async (
 
     // Get AI analysis with increased token limit
     const response = await hf.textGeneration({
-      model: 'meta-llama/Llama-3.2-3B-Instruct',
+      model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
       inputs: systemPrompt,
       parameters: {
         max_new_tokens: 2000, // Increased from 1000
